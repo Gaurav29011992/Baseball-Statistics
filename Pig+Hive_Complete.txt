@@ -1,0 +1,298 @@
+Code determining the Maximum number of runs per year
+
+batter_run.pig
+
+batting = load ‘/user/gxd150230/Batting.csv' using PigStorage(',');
+raw_runs = FILTER batting BY $1>2005;
+runs = FOREACH raw_runs GENERATE $0 as playerID, $1 as year, $8 as runs;
+grp_data = GROUP runs by (year);
+max_runs = FOREACH grp_data GENERATE group as grp,MAX(runs.runs) as max_runs;
+join_max_run = JOIN max_runs by ($0, max_runs), runs by (year,runs);  
+join_data = FOREACH join_max_run GENERATE $0 as year, $2 as playerID, $1 as runs;  
+new = ORDER join_data BY runs DESC;
+final_table = LIMIT new 1;
+STORE new INTO '/user/gxd150230/batter/' using PigStorage(',');
+
+
+
+
+
+Code determining the Maximum number of hits per year
+
+batter_hit.pig
+
+
+hits1 = load ‘/user/gxd150230/Batting.csv' using PigStorage(',');
+raw_hits = FILTER hits1 BY $1>2005;
+hits = FOREACH raw_hits GENERATE $0 as playerID, $1 as year, $9 as hits;
+grp_data1 = GROUP hits by (year);
+max_hits = FOREACH grp_data1 GENERATE group as grp,MAX(hits.hits) as max_hits;
+join_max_hits = JOIN max_hits by ($0, max_hits), hits by (year,hits);  
+join_data1 = FOREACH join_max_hits GENERATE $0 as year, $2 as playerID, $1 as hits;  
+new_hits = ORDER join_data1 BY hits DESC;
+final_table_hits = LIMIT new_hits 1;
+STORE new_hits INTO '/user/gxd150230/batter_hits/' using PigStorage(',');
+
+
+Code determining the Maximum number of atbats per year
+
+batter_atbat.pig
+
+
+atbats1 = load ‘/user/gxd150230/Batting.csv' using PigStorage(',');
+raw_atbats = FILTER atbats1 BY $1>2005;
+atbats = FOREACH raw_atbats GENERATE $0 as playerID, $1 as year, $7 as atbats;
+grp_data2 = GROUP atbats by (year);
+max_atbats = FOREACH grp_data2 GENERATE group as grp,MAX(atbats.atbats) as max_atbats;
+join_max_atbats = JOIN max_atbats by ($0, max_atbats), atbats by (year,atbats);  
+join_data2 = FOREACH join_max_atbats GENERATE $0 as year, $2 as playerID, $1 as atbats;  
+new_atbats = ORDER join_data2 BY atbats DESC;
+final_table_atbats = LIMIT new_atbats 1;
+STORE new_atbats INTO '/user/gxd150230/Batter_Atbats/' using PigStorage(',');
+
+
+
+
+Code determining the Maximum Onbase per year
+
+batter_onbase.pig
+
+onbase1 = load ‘/user/gxd150230/Batting.csv' using PigStorage(',');
+raw_onbase = FILTER onbase1 BY $1>2005;
+onbase = FOREACH raw_onbase GENERATE $0 as playerID, $1 as year, ($9 + $16 + $19)/($7 + $16 + $19 + $21) as b_onbase;
+grp_data = GROUP onbase by (year);
+max_onbase = FOREACH grp_data GENERATE group as grp,MAX(onbase.b_onbase) as max_onbase;
+join_max_onbase = JOIN max_onbase by ($0, max_onbase),onbase by (year,b_onbase);  
+join_data = FOREACH join_max_onbase GENERATE $0 as year, $2 as playerID, $1 as final_onbase;
+new_onbase = ORDER join_data BY final_onbase DESC;
+final_table_onbase = LIMIT new_onbase 1;
+STORE new_onbase INTO '/user/gxd150230/Batter_Onbase/' using PigStorage(',');
+
+
+
+Code determining the Maximum Average per year
+
+batter_average.pig
+
+average1 = load ‘/user/gxd150230/Batting.csv' using PigStorage(',');
+raw_average = FILTER average1 BY $1>0;
+f_average = FOREACH raw_average GENERATE $0 as playerID, $1 as year, $9/$7 as b_average;
+grp_data = GROUP f_average by (year);
+max_average = FOREACH grp_data GENERATE group as grp,MAX(f_average.b_average) as max_baverage;
+join_max_average = JOIN max_averaeg by ($0, max_baverage), f_average by (year,b_average);  
+join_data = FOREACH join_max_average GENERATE $0 as year, $2 as playerID, $1 as onaverage; 
+DUMP join_data;
+
+
+
+
+
+
+Fielders :
+
+Code determining the Maximum Putouts per year
+
+fielder_PO.pig
+
+fielding = load ‘/user/gxd150230/Fielding.csv' using PigStorage(',');
+raw_PO = FILTER fielding BY $1>2005;
+PO = FOREACH raw_PO GENERATE $0 as playerID, $1 as year, $9 as PO;
+grp_PO = GROUP PO by (year);
+max_PO = FOREACH grp_PO GENERATE group as grp,MAX(PO.PO) as max_PO;
+join_max_PO = JOIN max_PO by ($0, max_PO), PO by (year,PO); 
+join_data_PO = FOREACH join_max_PO GENERATE $0 as year, $2 as playerID, $1 as PO; 
+new_PO = ORDER join_data_PO BY PO DESC;
+final_table_PO = LIMIT new_PO 1;
+STORE new_PO INTO '/user/gxd150230/Fielder_Putout/' using PigStorage(',');
+
+
+
+Code determining the Maximum Total Performance per year
+
+fielder_performance.pig
+
+
+f_total = load ‘/user/gxd150230/Fielding.csv' using PigStorage(',');
+raw_total = FILTER f_total BY $1>2005;
+total_performance = FOREACH raw_total GENERATE $0 as playerID, $1 as year, $9 + $10 + $11 as total;
+grp_total = GROUP  total_performance by (year);
+max_total = FOREACH grp_total GENERATE group as grp,MAX(total_performance.total) as max_total;
+join_max_total = JOIN max_total by ($0, max_total), total_performance by (year,total); 
+join_data_total = FOREACH join_max_total GENERATE $0 as year, $2 as playerID, $1 as t_perf; 
+new_total = ORDER join_data_total BY t_perf DESC;
+final_table_total = LIMIT new_total 1;
+STORE new_total INTO '/user/gxd150230/fielder_total/' using PigStorage(',');
+
+
+
+
+Code determining the Maximum Assists per year
+
+
+fielder_assist.pig
+
+
+field_assist = load ‘/user/gxd150230/Fielding.csv' using PigStorage(',');
+raw_as = FILTER field_assist BY $1>2005;
+ass = FOREACH raw_as GENERATE $0 as playerID, $1 as year, $10 as ass;
+grp_as = GROUP ass by (year);
+max_as = FOREACH grp_as GENERATE group as grp,MAX(ass.ass) as max_as;
+join_max_as = JOIN max_as by ($0, max_as), ass by (year,ass); 
+join_data_as = FOREACH join_max_as GENERATE $0 as year, $2 as playerID, $1 as ass; 
+new_as = ORDER join_data_as BY ass DESC;
+final_table_as = LIMIT new_as 1;
+STORE new_as INTO '/user/gxd150230/Fielder_Assist/' using PigStorage(',');
+
+
+
+
+
+Pitchers :
+
+Code determining the Maximum Strikeout per year
+
+pitcher_strike.pig
+
+pitcher = load 'user/gxd150230/Pitching.csv' using PigStorage(',');
+filter_table = FILTER pitcher BY $1>2005;
+strikeout = FOREACH filter_table GENERATE $0 as playerID, $1 as year, $17 as StrikeOut;
+grp_year = GROUP strikeout by (year);
+max_strikeout = FOREACH grp_year GENERATE group as grp,MAX(strikeout.StrikeOut) as max_strikeout;
+join_max_strikeout = JOIN max_strikeout by ($0, max_strikeout), strikeout by (year,StrikeOut);
+join_data = FOREACH join_max_strikeout GENERATE $0 as year, $2 as playerID, $1 as str;  
+new_data = ORDER join_data BY str DESC;
+final_table = LIMIT new_data 3;
+STORE new_data INTO '/user/gxd150230/pitcher_strikeout/' using PigStorage(',');
+
+
+
+Code determining the Maximum ERA per year
+
+pitcher_era.pig
+
+p_ERA = load '/user/gxd150230/Pitching.csv' using PigStorage(',');
+raw_ERA = FILTER p_ERA BY $1>2005;
+ERA = FOREACH raw_ERA GENERATE $0 as playerID, $1 as year, $19 as ERA;
+grp_ERA = GROUP ERA by (year);
+max_ERA = FOREACH grp_ERA GENERATE group as grp,MAX(ERA.ERA) as max_ERA;
+join_max_ERA = JOIN max_ERA by ($0,max_ERA), ERA by (year,ERA); 
+join_data_ERA = FOREACH join_max_ERA GENERATE $0 as year, $2 as playerID, $1 as ERA; 
+new_ERA_l = ORDER join_data_ERA BY ERA DESC;
+final_table_ERA = LIMIT new_ERA 3;
+STORE new_ERA_l INTO '/user/gxd150230/Pitchers_ERA/' using PigStorage(',');
+
+
+
+We Stored the data for each of the Batters , Pitchers and the Fielders on the HDFS using various Store Statements like :
+
+STORE final_table_ERA INTO '/user/gxd150230/Pitchers_ERA/' using PigStorage(',');
+
+When this statement is executed one part-r-00000 file is created in the Directory which contains the Output of the Reducer.
+
+
+Hive Queries on every Table :
+
+Batters :
+
+File is located in the directory /user/gxd150230/Batter_Atbats/
+
+CREATE EXTERNAL TABLE batterAtbat(year string,id string,atbats int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/Batter_Atbats/';
+
+Sample Query be like :
+
+select * from batterAtbat where id LIKE '%suzukic01%';
+
+Output :
+2010    suzukic01       680
+2011    suzukic01       677
+
+Getting the Row with the maximum value for a particular attribute :
+
+hive> SELECT * FROM batterAtbat ORDER BY atbats DESC  LIMIT 1;
+
+Output :
+
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1459540264665_6945, Tracking URL = http://cshadoop1.utdallas.edu:8088/proxy/application_1459540264665_6945/
+Kill Command = /usr/local/hadoop-2.4.1/bin/hadoop job  -kill job_1459540264665_6945
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2016-04-28 23:36:26,483 Stage-1 map = 0%,  reduce = 0%
+2016-04-28 23:36:30,708 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 0.78 sec
+2016-04-28 23:36:37,060 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 2.3 sec
+MapReduce Total cumulative CPU time: 2 seconds 300 msec
+Ended Job = job_1459540264665_6945
+MapReduce Jobs Launched:
+Job 0: Map: 1  Reduce: 1   Cumulative CPU: 2.3 sec   HDFS Read: 337 HDFS Write: 19 SUCCESS
+Total MapReduce CPU Time Spent: 2 seconds 300 msec
+OK
+2007    rolliji01       716
+Time taken: 17.743 seconds, Fetched: 1 row(s)
+
+
+
+
+File is located in the directory /user/gxd150230/Batter_Atbats/
+CREATE EXTERNAL TABLE batterOnbase(year string,id string,onbase int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/Batter_Onbase/';
+select * from batterOnbase where year LIKE '%2006%';
+
+
+
+
+File is located in the directory /user/gxd150230/batter_hits/
+CREATE EXTERNAL TABLE batterhits(year string,id string,hits int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/batter_hits/';
+select * from batterhits where year LIKE '%2007%';
+
+
+
+
+File is located in the directory /user/gxd150230/batter/
+CREATE EXTERNAL TABLE batter(year string,id string,runs int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/batter/';
+select * from batter where id LIKE '%pujola101%';
+
+
+
+
+Pitchers :
+
+
+File is located in the directory /user/gxd150230/pitcher_strikeout/
+CREATE EXTERNAL TABLE pitcher_strikeout(year string,id string,strikeout int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/pitcher_strikeout/';
+
+select * from pitcher_strikeout where year LIKE '%2008%';
+
+
+File is located in the directory /user/gxd150230/Pitchers_ERA/
+CREATE EXTERNAL TABLE pitcher_ERA(year string,id string,ERA double) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/Pitchers_ERA/';
+
+SELECT * FROM pither_ERA ORDER BY ERA DESC  LIMIT 1;
+
+
+
+Fielders :
+
+
+File is located in the directory /user/gxd150230/Fielder_assist/
+CREATE EXTERNAL TABLE fielder_assist(year string,id string,assist int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/Fielder_Assist/';
+
+SELECT * FROM fielder_assist ORDER BY assist DESC  LIMIT 1;
+
+
+
+File is located in the directory /user/gxd150230/Fielder_Putout/
+CREATE EXTERNAL TABLE fielder_putout(year string,id string,assist int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/Fielder_Putout/';
+
+
+select * from fielder_putout where year LIKE '%2008%';
+
+File is located in the directory /user/gxd150230/fielder_total/
+CREATE EXTERNAL TABLE fielder_total(year string,id string,total int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' LOCATION '/user/gxd150230/fielder_total/';
+
+select * from fielder_total where year LIKE '%2008%';
